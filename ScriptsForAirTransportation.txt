@@ -1,0 +1,23 @@
+//Get tickets with client information
+SELECT * 
+FROM dbo.Tickets 
+LEFT JOIN dbo.Clients
+ON dbo.Tickets.ClientId = dbo.Clients.Id
+WHERE ClientId IS NOT NULL
+
+//Get the last 5 sold tickets
+SELECT TOP 5 * 
+FROM dbo.Tickets
+ORDER BY DateOfSale DESC
+
+//Get top 3 clients by flight frequency
+SELECT TOP 3 *
+FROM dbo.Clients
+LEFT JOIN 
+(SELECT ClientId,COUNT(ClientId) AS FlightPerYear
+	FROM dbo.FlightFrequency 
+	LEFT JOIN dbo.Clients 
+	ON dbo.FlightFrequency.ClientId = dbo.Clients.Id
+	GROUP BY ClientId) AS FlightCount
+ON dbo.Clients.Id = FlightCount.ClientId
+ORDER BY FlightPerYear DESC
