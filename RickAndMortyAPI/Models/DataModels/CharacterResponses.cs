@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace RickAndMortyAPI.DataModels
+namespace RickAndMortyAPI.Models.DataModels
 {
-    public class CharacterResponse
+    public class CharacterResponses
     {
         public Info Info { get; set; }
         public Character[] Results { get; set; }

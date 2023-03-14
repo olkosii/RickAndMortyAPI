@@ -1,4 +1,4 @@
-﻿namespace RickAndMortyAPI.DataModels
+﻿namespace RickAndMortyAPI.Models.DataModels
 {
     public class Episode
     {

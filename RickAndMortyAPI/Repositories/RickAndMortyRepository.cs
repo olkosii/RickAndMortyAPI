@@ -2,14 +2,16 @@
 using RickAndMortyAPI.RickAndMortyAPI;
 using System.Net.Http;
 using System.Threading.Tasks;
-using RickAndMortyAPI.DomainModels;
-using RickAndMortyAPI.DataModels;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Xml.Linq;
+using RickAndMortyAPI.Models.DataModels;
+using RickAndMortyAPI.Models.DomainModels;
+using RickAndMortyAPI.Deserializers;
 
 namespace RickAndMortyAPI.Repositories
 {
@@ -22,6 +24,46 @@ namespace RickAndMortyAPI.Repositories
             httpClient  = new HttpClient();
         }
 
+        //Returns first 20 characters from first page
+        public async Task<List<Character>> GetCharacters()
+        {
+            var url = string.Format(RickAndMortyApi.Characters);
+
+            var response = await httpClient.GetAsync(url);
+
+            return await CharacterDeserializer.DeserializeToCharactersList(response, GetCharacterOriginInfo);
+        }
+
+        //Returns the most appropriate character by name
+        public async Task<Character> GetCharacterByName(string name)
+        {
+            var url = string.Format(RickAndMortyApi.Characters + $"?name={name.ToLower().Trim()}");
+
+            var response = await httpClient.GetAsync(url);
+
+            return await CharacterDeserializer.DeserializeToCharacterResponse(response, GetCharacterOriginInfo);
+        }
+
+        //Returns one/few characters with similar name
+        public async Task<List<Character>> GetSimilarCharactersByName(string name)
+        {
+            var url = string.Format(RickAndMortyApi.Characters + $"?name={name.ToLower().Trim()}");
+
+            var response = await httpClient.GetAsync(url);
+
+            return await CharacterDeserializer.DeserializeToCharactersList(response, GetCharacterOriginInfo);
+        }
+
+        //Returns one character by Id
+        public async Task<Character> GetCharacterById(int id)
+        {
+            var url = string.Format(RickAndMortyApi.Characters + id);
+
+            var response = await httpClient.GetAsync(url);
+
+            return await CharacterDeserializer.DeserializeToCharacter(response,GetCharacterOriginInfo);
+        }
+
         public async Task<bool> CheckCharacterByEpisode(CheckCharacter character)
         {
             var url = string.Format(RickAndMortyApi.Characters + $"?name={character.CharacterName.ToLower().Trim(' ')}");
@@ -29,7 +71,7 @@ namespace RickAndMortyAPI.Repositories
 
             if (response.IsSuccessStatusCode)
             {
-                var responseObject = JsonSerializer.Deserialize<CharacterResponse>(await response.Content.ReadAsStringAsync(),
+                var responseObject = JsonSerializer.Deserialize<CharacterResponses>(await response.Content.ReadAsStringAsync(),
                     new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
                 var episodeUrl = await GetEpisodeUrlByName(character.EpisodeName);
@@ -39,36 +81,6 @@ namespace RickAndMortyAPI.Repositories
             }
             
             return false;
-        }
-
-        public async Task<Character> GetCharacterByName(string name)
-        {
-            var url = string.Format(RickAndMortyApi.Characters + $"?name={name.ToLower().Trim()}");
-            var response = await httpClient.GetAsync(url);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseObject = JsonSerializer.Deserialize<CharacterResponse>(await response.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-
-                var result = new Character()
-                {
-                    Name = responseObject.Results[0].Name,
-                    Status = responseObject.Results[0].Status,
-                    Species = responseObject.Results[0].Species,
-                    Type = responseObject.Results[0].Type,
-                    Gender = responseObject.Results[0].Gender
-                };
-
-                result.Origin = responseObject.Results[0].Origin.Url != string.Empty ?
-                    await GetCharacterOriginInfo(responseObject.Results[0].Origin.Url) :
-                    responseObject.Results[0].Origin;
-
-
-                return result;
-            }
-
-            return null;
         }
 
         public async Task<bool> CheckCharacterAndEpisodeExistenceByNames(string characterName, string episodeName)
@@ -81,6 +93,7 @@ namespace RickAndMortyAPI.Repositories
 
             return true;
         }
+
 
         private async Task<string> GetEpisodeUrlByName(string name)
         {
@@ -99,7 +112,6 @@ namespace RickAndMortyAPI.Repositories
 
             return null;
         }
-
         private async Task<CharacterOrigin> GetCharacterOriginInfo(string url)
         {
             var response = await httpClient.GetAsync(url);

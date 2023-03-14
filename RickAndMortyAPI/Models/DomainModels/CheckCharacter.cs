@@ -1,4 +1,4 @@
-﻿namespace RickAndMortyAPI.DomainModels
+﻿namespace RickAndMortyAPI.Models.DomainModels
 {
     public class CheckCharacter
     {

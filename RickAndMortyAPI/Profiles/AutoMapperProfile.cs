@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using RickAndMortyAPI.DataModels;
-using RickAndMortyAPI.DomainModels;
+using RickAndMortyAPI.Models.DataModels;
+using RickAndMortyAPI.Models.DomainModels;
 
 namespace RickAndMortyAPI.Profiles
 {
