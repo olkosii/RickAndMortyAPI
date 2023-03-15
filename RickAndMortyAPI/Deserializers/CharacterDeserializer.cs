@@ -13,8 +13,7 @@ namespace RickAndMortyAPI.Deserializers
         {
             if (responseMessage.IsSuccessStatusCode)
             {
-                var result = JsonSerializer.Deserialize<Character>(await responseMessage.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var result = await Deserialize<Character>(responseMessage);
 
                 result.Origin = result.Origin.Url != string.Empty ?
                     await characterOriginHandler(result.Origin.Url) :
@@ -30,8 +29,7 @@ namespace RickAndMortyAPI.Deserializers
         {
             if (responseMessage.IsSuccessStatusCode)
             {
-                var responseObject = JsonSerializer.Deserialize<CharacterResponses>(await responseMessage.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var responseObject = await Deserialize<CharacterResponses>(responseMessage);
 
                 var result = new Character()
                 {
@@ -59,8 +57,7 @@ namespace RickAndMortyAPI.Deserializers
         {
             if (responseMessage.IsSuccessStatusCode)
             {
-                var responseObject = JsonSerializer.Deserialize<CharacterResponses>(await responseMessage.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var responseObject = await Deserialize<CharacterResponses>(responseMessage);
 
                 var resultList = new List<Character>(responseObject.Results);
 
@@ -75,6 +72,12 @@ namespace RickAndMortyAPI.Deserializers
             }
 
             return null;
+        }
+
+        private static async Task<T> Deserialize<T>(HttpResponseMessage responseMessage)
+        {
+            return JsonSerializer.Deserialize<T>(await responseMessage.Content.ReadAsStringAsync(),
+                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         }
     }
 }
