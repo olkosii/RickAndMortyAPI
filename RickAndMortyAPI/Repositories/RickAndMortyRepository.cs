@@ -71,8 +71,7 @@ namespace RickAndMortyAPI.Repositories
 
             if (response.IsSuccessStatusCode)
             {
-                var responseObject = JsonSerializer.Deserialize<CharacterResponses>(await response.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var responseObject = await CharacterDeserializer.Deserialize<CharacterResponses>(response);
 
                 var episodeUrl = await GetEpisodeUrlByName(character.EpisodeName);
 
@@ -102,8 +101,7 @@ namespace RickAndMortyAPI.Repositories
 
             if (response.IsSuccessStatusCode)
             {
-                var responseObject = JsonSerializer.Deserialize<EpisodeResponse>(await response.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var responseObject = await CharacterDeserializer.Deserialize<EpisodeResponse>(response);
 
                 var result = responseObject.Results[0].Url;
 
@@ -118,8 +116,7 @@ namespace RickAndMortyAPI.Repositories
 
             if (response.IsSuccessStatusCode)
             {
-                var responseObject = JsonSerializer.Deserialize<CharacterOrigin>(await response.Content.ReadAsStringAsync(),
-                    new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var responseObject = await CharacterDeserializer.Deserialize<CharacterOrigin>(response);
 
                 return responseObject;
             }

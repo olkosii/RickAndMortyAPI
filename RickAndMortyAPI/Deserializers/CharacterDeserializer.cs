@@ -74,7 +74,7 @@ namespace RickAndMortyAPI.Deserializers
             return null;
         }
 
-        private static async Task<T> Deserialize<T>(HttpResponseMessage responseMessage)
+        public static async Task<T> Deserialize<T>(HttpResponseMessage responseMessage)
         {
             return JsonSerializer.Deserialize<T>(await responseMessage.Content.ReadAsStringAsync(),
                     new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
